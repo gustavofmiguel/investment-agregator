@@ -1,7 +1,7 @@
 package com.gustavo.AgregadorDeInvestimentos.service;
 
-import com.gustavo.AgregadorDeInvestimentos.controller.CreateUserDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.UpdateUserDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateUserDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.UpdateUserDto;
 import com.gustavo.AgregadorDeInvestimentos.entity.User;
 import com.gustavo.AgregadorDeInvestimentos.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 
 import java.time.Instant;
 import java.util.List;

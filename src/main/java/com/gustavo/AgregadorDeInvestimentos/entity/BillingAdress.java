@@ -12,24 +12,25 @@ public class BillingAdress {
     @Column(name = "account_id")
     private UUID id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "account_id")
     private Account account;
 
     @Column(name = "street")
-    private String user;
+    private String street;
 
     @Column(name = "number")
-    private String number;
+    private Integer number;
 
     public BillingAdress() {
     }
 
-    public BillingAdress(UUID id, String number, String user) {
+    public BillingAdress(UUID id, Account account, String street, Integer number) {
         this.id = id;
+        this.account = account;
+        this.street = street;
         this.number = number;
-        this.user = user;
     }
 
     public UUID getId() {
@@ -40,19 +41,27 @@ public class BillingAdress {
         this.id = id;
     }
 
-    public String getNumber() {
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public Integer getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(Integer number) {
         this.number = number;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 }

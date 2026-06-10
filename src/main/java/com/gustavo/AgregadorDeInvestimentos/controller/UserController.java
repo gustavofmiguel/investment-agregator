@@ -1,5 +1,9 @@
 package com.gustavo.AgregadorDeInvestimentos.controller;
 
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.AccountResponseDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateAccountDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateUserDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.UpdateUserDto;
 import com.gustavo.AgregadorDeInvestimentos.entity.User;
 import com.gustavo.AgregadorDeInvestimentos.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +56,20 @@ public class UserController {
     public ResponseEntity<Void> deleteById(@PathVariable("userId") String userId ){
         userService.deleteById(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/accounts")
+    public ResponseEntity<Void> createAccount(@PathVariable("userId") String userId,
+                                           @RequestBody CreateAccountDto createAccountDto){
+        userService.createAccount(userId, createAccountDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/accounts")
+    public ResponseEntity<List<AccountResponseDto>> listAccounts(@PathVariable("userId") String userId){
+
+        var accounts = userService.listAccounts(userId);
+
+        return ResponseEntity.ok(accounts);
     }
 }

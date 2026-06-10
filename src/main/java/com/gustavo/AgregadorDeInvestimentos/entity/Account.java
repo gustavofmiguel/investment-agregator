@@ -18,7 +18,7 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "account")
     @PrimaryKeyJoinColumn
     private BillingAdress billingAdress;
 
@@ -31,9 +31,12 @@ public class Account {
     public Account() {
     }
 
-    public Account(String description, UUID accountId) {
-        this.description = description;
+    public Account(UUID accountId, User user, BillingAdress billingAdress, List<AccountStock> accountStocks, String description) {
         this.accountId = accountId;
+        this.user = user;
+        this.billingAdress = billingAdress;
+        this.accountStocks = accountStocks;
+        this.description = description;
     }
 
     public String getDescription() {
