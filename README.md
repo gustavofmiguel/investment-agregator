@@ -10,7 +10,7 @@ API REST de estudo feita com Spring Boot para gerenciar usuários, contas e ativ
 
 ## Sobre
 
-Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, persistência com JPA/Hibernate e integração com serviços externos.
+Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, persistência com JPA/Hibernate, testes unitários com Junit5 e integração com serviços externos.
 
 ## O que aprendi
 
