@@ -1,8 +1,8 @@
 package com.gustavo.AgregadorDeInvestimentos.entity;
 
 import jakarta.persistence.*;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -20,7 +20,7 @@ public class Account {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "account")
     @PrimaryKeyJoinColumn
-    private BillingAdress billingAdress;
+    private BillingAddress billingAddress;
 
     @Column(name = "description")
     private String description;
@@ -31,10 +31,10 @@ public class Account {
     public Account() {
     }
 
-    public Account(UUID accountId, User user, BillingAdress billingAdress, List<AccountStock> accountStocks, String description) {
+    public Account(UUID accountId, User user, BillingAddress billingAddress, List<AccountStock> accountStocks, String description) {
         this.accountId = accountId;
         this.user = user;
-        this.billingAdress = billingAdress;
+        this.billingAddress = billingAddress;
         this.accountStocks = accountStocks;
         this.description = description;
     }
@@ -63,12 +63,12 @@ public class Account {
         this.user = user;
     }
 
-    public BillingAdress getBillingAdress() {
-        return billingAdress;
+    public BillingAddress getBillingAdress() {
+        return billingAddress;
     }
 
-    public void setBillingAdress(BillingAdress billingAdress) {
-        this.billingAdress = billingAdress;
+    public void setBillingAdress(BillingAddress billingAddress) {
+        this.billingAddress = billingAddress;
     }
 
     public List<AccountStock> getAccountStocks() {
@@ -77,5 +77,17 @@ public class Account {
 
     public void setAccountStocks(List<AccountStock> accountStocks) {
         this.accountStocks = accountStocks;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Account account)) return false;
+        return Objects.equals(accountId, account.accountId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(accountId);
     }
 }

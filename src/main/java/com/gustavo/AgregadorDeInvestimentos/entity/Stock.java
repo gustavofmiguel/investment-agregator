@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "tb_stock")
 public class Stock {
@@ -38,5 +40,17 @@ public class Stock {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Stock stock)) return false;
+        return Objects.equals(stockId, stock.stockId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(stockId);
     }
 }

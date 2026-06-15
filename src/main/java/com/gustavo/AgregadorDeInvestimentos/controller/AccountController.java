@@ -2,12 +2,13 @@ package com.gustavo.AgregadorDeInvestimentos.controller;
 
 import com.gustavo.AgregadorDeInvestimentos.controller.dto.AccountStockResponseDto;
 import com.gustavo.AgregadorDeInvestimentos.controller.dto.AssociateAccountStockDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateAccountDto;
 import com.gustavo.AgregadorDeInvestimentos.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/accounts")
@@ -20,14 +21,14 @@ public class AccountController {
     }
 
     @PostMapping("/{accountId}/stocks")
-    public ResponseEntity<Void> associateStock(@PathVariable("accountId") String accountId,
-                                               @RequestBody AssociateAccountStockDto dto) {
+    public ResponseEntity<Void> associateStock(@PathVariable UUID accountId,
+                                               @RequestBody @Valid AssociateAccountStockDto dto) {
         accountService.associateStock(accountId, dto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{accountId}/stocks")
-    public ResponseEntity<List<AccountStockResponseDto>> associateStock(@PathVariable("accountId") String accountId) {
+    public ResponseEntity<List<AccountStockResponseDto>> associateStock(@PathVariable UUID accountId) {
         var stocks = accountService.listStocks(accountId);
         return ResponseEntity.ok(stocks);
     }

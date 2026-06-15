@@ -60,7 +60,7 @@ class UserServiceTest {
             );
 
             // Act
-            var output = userService.crateUser(input);
+            var output = userService.createUser(input);
 
             // Assert
             assertNotNull(output);
@@ -83,7 +83,7 @@ class UserServiceTest {
             );
 
             // Act & Assert
-            assertThrows(RuntimeException.class, () -> userService.crateUser(input));
+            assertThrows(RuntimeException.class, () -> userService.createUser(input));
 
         }
     }
@@ -107,7 +107,7 @@ class UserServiceTest {
                     .when(userRepository)
                     .findById(uuidArgumentCaptor.capture());
             // Act
-            var output = userService.getUserById(user.getUserId().toString());
+            var output = userService.getUserById(user.getUserId());
 
             // Assert
             assertTrue(output.isPresent());
@@ -177,7 +177,7 @@ class UserServiceTest {
             var userId = UUID.randomUUID();
 
             // Act
-            userService.deleteById(userId.toString());
+            userService.deleteById(userId);
 
             // Assert
             var idList = uuidArgumentCaptor.getAllValues();
@@ -201,7 +201,7 @@ class UserServiceTest {
             var userId = UUID.randomUUID();
 
             // Act
-            userService.deleteById(userId.toString());
+            userService.deleteById(userId);
 
             // Assert
             assertEquals(userId, uuidArgumentCaptor.getValue());
@@ -241,7 +241,7 @@ class UserServiceTest {
                     .save(userArgumentCaptor.capture());
 
             // Act
-            userService.updateUserById(user.getUserId().toString(), updateUserDto);
+            userService.updateUserById(user.getUserId(), updateUserDto);
 
             // Assert
             var userCaptured = userArgumentCaptor.getValue();
@@ -270,7 +270,7 @@ class UserServiceTest {
                     .findById(uuidArgumentCaptor.capture());
 
             // Act
-            userService.updateUserById(userId.toString(), updateUserDto);
+            userService.updateUserById(userId, updateUserDto);
 
             // Assert
 

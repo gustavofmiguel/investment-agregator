@@ -3,8 +3,7 @@ package com.gustavo.AgregadorDeInvestimentos.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Id;
-
+import java.util.Objects;
 import java.util.UUID;
 
 @Embeddable
@@ -38,5 +37,18 @@ public class AccountStockId {
 
     public void setStockId(String stockId) {
         this.stockId = stockId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AccountStockId that)) return false;
+        return Objects.equals(accountId, that.accountId) &&
+                Objects.equals(stockId, that.stockId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId, stockId);
     }
 }

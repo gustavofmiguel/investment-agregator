@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_billing_adress")
-public class BillingAdress {
+public class BillingAddress {
 
     @Id
     @Column(name = "account_id")
@@ -23,10 +23,10 @@ public class BillingAdress {
     @Column(name = "number")
     private Integer number;
 
-    public BillingAdress() {
+    public BillingAddress() {
     }
 
-    public BillingAdress(UUID id, Account account, String street, Integer number) {
+    public BillingAddress(UUID id, Account account, String street, Integer number) {
         this.id = id;
         this.account = account;
         this.street = street;

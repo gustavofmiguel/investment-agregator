@@ -36,9 +36,9 @@ public class AccountService {
         this.brapiClient = brapiClient;
     }
 
-    public void associateStock(String accountId, AssociateAccountStockDto dto) {
+    public void associateStock(UUID accountId, AssociateAccountStockDto dto) {
 
-        var account = accountRepository.findById(UUID.fromString(accountId))
+        var account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         var stock = stockRepository.findById(dto.stockId())
@@ -54,9 +54,9 @@ public class AccountService {
         accountStockRepository.save(entity);
     }
 
-    public List<AccountStockResponseDto> listStocks(String accountId) {
+    public List<AccountStockResponseDto> listStocks(UUID accountId) {
 
-        var account = accountRepository.findById(UUID.fromString(accountId))
+        var account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return account.getAccountStocks()
                 .stream()
@@ -69,12 +69,14 @@ public class AccountService {
     }
 
     private double getTotal(Integer quantity, String stockId) {
-
-        var response = brapiClient.getQuote(TOKEN, stockId);
-
-        var price = response.results().getFirst().regularMarketPrice();
-
-
-        return quantity * price;
+        try {
+            var response = brapiClient.getQuote(TOKEN, stockId);
+            if (response.results() == null || response.results().isEmpty()){
+                return 0.0;
+            }
+            return quantity * response.results().getFirst().regularMarketPrice();
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }
