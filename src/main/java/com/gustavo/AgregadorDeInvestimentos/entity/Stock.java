@@ -12,10 +12,10 @@ import java.util.Objects;
 public class Stock {
 
     @Id
-    @Column(name = "stock_id")
+    @Column(name = "stock_id", nullable = false, length = 20)
     private String stockId;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false, length = 255)
     private String description;
 
     public Stock() {

@@ -17,10 +17,10 @@ public class BillingAddress {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "street")
+    @Column(name = "street", nullable = false, length = 255)
     private String street;
 
-    @Column(name = "number")
+    @Column(name = "number", nullable = false)
     private Integer number;
 
     public BillingAddress() {

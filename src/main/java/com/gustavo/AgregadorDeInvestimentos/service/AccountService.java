@@ -8,6 +8,7 @@ import com.gustavo.AgregadorDeInvestimentos.entity.AccountStockId;
 import com.gustavo.AgregadorDeInvestimentos.repository.AccountRepository;
 import com.gustavo.AgregadorDeInvestimentos.repository.AccountStockRepository;
 import com.gustavo.AgregadorDeInvestimentos.repository.StockRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class AccountService {
         this.brapiClient = brapiClient;
     }
 
+    @Transactional
     public void associateStock(UUID accountId, AssociateAccountStockDto dto) {
 
         var account = accountRepository.findById(accountId)

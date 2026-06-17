@@ -22,7 +22,7 @@ public class Account {
     @PrimaryKeyJoinColumn
     private BillingAddress billingAddress;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false, length = 255)
     private String description;
 
     @OneToMany(mappedBy = "account")
