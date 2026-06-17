@@ -1,9 +1,6 @@
 package com.gustavo.AgregadorDeInvestimentos.controller;
 
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.AccountResponseDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateAccountDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateUserDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.UpdateUserDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.*;
 import com.gustavo.AgregadorDeInvestimentos.entity.User;
 import com.gustavo.AgregadorDeInvestimentos.service.UserService;
 import jakarta.validation.Valid;
@@ -32,17 +29,13 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID userId){
-        var user = userService.getUserById(userId);
-        if (user.isPresent()){
-            return ResponseEntity.ok(user.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable UUID userId){
+            return ResponseEntity.ok(userService.getUserById(userId));
+
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> listUsers() {
+    public ResponseEntity<List<UserResponseDto>> listUsers() {
         var users = userService.listUsers();
         return ResponseEntity.ok(users);
     }

@@ -123,7 +123,7 @@ class UserServiceTest {
                     .when(userRepository).
                     findById(uuidArgumentCaptor.capture());
             // Act
-            var output = userService.getUserById(userId.toString());
+            var output = userService.getUserById(userId);
 
             // Assert
             assertTrue(output.isEmpty());

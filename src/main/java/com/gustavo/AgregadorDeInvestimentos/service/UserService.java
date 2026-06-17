@@ -1,9 +1,6 @@
 package com.gustavo.AgregadorDeInvestimentos.service;
 
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.AccountResponseDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateAccountDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.CreateUserDto;
-import com.gustavo.AgregadorDeInvestimentos.controller.dto.UpdateUserDto;
+import com.gustavo.AgregadorDeInvestimentos.controller.dto.*;
 import com.gustavo.AgregadorDeInvestimentos.entity.Account;
 import com.gustavo.AgregadorDeInvestimentos.entity.BillingAddress;
 import com.gustavo.AgregadorDeInvestimentos.entity.User;
@@ -42,12 +39,17 @@ public class UserService {
         return userSaved.getUserId();
     }
 
-    public Optional<User> getUserById(UUID userId){
-       return userRepository.findById(userId);
+    public UserResponseDto getUserById(UUID userId) {
+        return userRepository.findById(userId)
+                .map(UserResponseDto::from)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public List<User> listUsers(){
-        return userRepository.findAll();
+    public List<UserResponseDto> listUsers(){
+        return userRepository.findAll()
+                .stream()
+                .map(UserResponseDto::from)
+                .toList();
     }
 
     public void updateUserById(UUID userId, UpdateUserDto updateUserDto){
