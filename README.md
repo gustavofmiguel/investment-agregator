@@ -130,9 +130,9 @@ src/
 
 ## Próximos passos
 
-- [ ] Adicionar validações com Bean Validation (`@Valid`, `@NotBlank`)
-- [ ] Melhorar tratamento de erros da Brapi com fallback
-- [ ] Criar DTOs de resposta para não expor entidades diretamente
+- [x] Adicionar validações com Bean Validation (`@Valid`, `@NotBlank`)
+- [x] Melhorar tratamento de erros da Brapi com fallback
+- [x] Criar DTOs de resposta para não expor entidades diretamente
 - [ ] Criptografar senhas com BCrypt
 - [ ] Adicionar testes de controller com `MockMvc`
 - [ ] Buscar múltiplos tickers em uma única chamada à Brapi
