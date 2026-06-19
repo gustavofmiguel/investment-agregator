@@ -5,22 +5,22 @@ import com.gustavo.AgregadorDeInvestimentos.controller.dto.AccountStockResponseD
 import com.gustavo.AgregadorDeInvestimentos.controller.dto.AssociateAccountStockDto;
 import com.gustavo.AgregadorDeInvestimentos.entity.AccountStock;
 import com.gustavo.AgregadorDeInvestimentos.entity.AccountStockId;
+import com.gustavo.AgregadorDeInvestimentos.exception.ResourceNotFoundException;
 import com.gustavo.AgregadorDeInvestimentos.repository.AccountRepository;
 import com.gustavo.AgregadorDeInvestimentos.repository.AccountStockRepository;
 import com.gustavo.AgregadorDeInvestimentos.repository.StockRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class AccountService {
 
-    @Value("#{environment.TOKEN}")
+    @Value("${TOKEN}")
     private String TOKEN;
     private AccountRepository accountRepository;
     private StockRepository stockRepository;
@@ -41,10 +41,10 @@ public class AccountService {
     public void associateStock(UUID accountId, AssociateAccountStockDto dto) {
 
         var account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada: " + accountId));
 
         var stock = stockRepository.findById(dto.stockId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Ação não encontrada: " + dto.stockId()));
 
         var id = new AccountStockId(account.getAccountId(), stock.getStockId());
         var entity = new AccountStock(
@@ -59,26 +59,41 @@ public class AccountService {
     public List<AccountStockResponseDto> listStocks(UUID accountId) {
 
         var account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return account.getAccountStocks()
-                .stream()
-                .map(as -> new AccountStockResponseDto(
-                        as.getStock().getStockId(),
-                        as.getQuantity(),
-                        getTotal(as.getQuantity(), as.getStock().getStockId())
-                ))
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada: " + accountId));
+
+        var accountStocks = account.getAccountStocks();
+        if (accountStocks.isEmpty()) {
+            return List.of();
+        }
+
+        var tickers = accountStocks.stream()
+                .map(as -> as.getStock().getStockId())
+                .toList();
+        var priceMap = fetchPrices(tickers);
+
+        return accountStocks.stream()
+                .map(as -> {
+                    var stockId = as.getStock().getStockId();
+                    var price = priceMap.getOrDefault(stockId, 0.0);
+                    return new AccountStockResponseDto(stockId, as.getQuantity(), as.getQuantity() * price);
+                })
                 .toList();
     }
 
-    private double getTotal(Integer quantity, String stockId) {
-        try {
-            var response = brapiClient.getQuote(TOKEN, stockId);
-            if (response.results() == null || response.results().isEmpty()){
-                return 0.0;
+    private Map<String, Double> fetchPrices(List<String> tickers) {
+        Map<String, Double> priceMap = new java.util.HashMap<>();
+        for (String ticker : tickers) {
+            try {
+                var response = brapiClient.getQuote(TOKEN, ticker);
+                if (response.results() != null && !response.results().isEmpty()) {
+                    var stock = response.results().getFirst();
+                    priceMap.put(ticker, stock.regularMarketPrice());
+                }
+            } catch (Exception e) {
+                System.out.println("Erro BRAPI para " + ticker + ": " + e.getMessage());
+                priceMap.put(ticker, 0.0);
             }
-            return quantity * response.results().getFirst().regularMarketPrice();
-        } catch (Exception e) {
-            return 0.0;
         }
+        return priceMap;
     }
 }

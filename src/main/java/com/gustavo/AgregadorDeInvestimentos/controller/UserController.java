@@ -4,6 +4,9 @@ import com.gustavo.AgregadorDeInvestimentos.controller.dto.*;
 import com.gustavo.AgregadorDeInvestimentos.entity.User;
 import com.gustavo.AgregadorDeInvestimentos.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,9 +38,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> listUsers() {
-        var users = userService.listUsers();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<Page<UserResponseDto>> listUsers(
+            @PageableDefault(size = 10, sort = "username") Pageable pageable) {
+        return ResponseEntity.ok(userService.listUsers(pageable));
     }
 
     @PutMapping("/{userId}")
