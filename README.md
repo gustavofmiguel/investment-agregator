@@ -10,7 +10,7 @@ API REST de estudo feita com Spring Boot para gerenciar usuários, contas e ativ
 
 ## Sobre
 
-Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, persistência com JPA/Hibernate e integração com serviços externos.
+Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, persistência com JPA/Hibernate e integração com serviços externos. Ao longo do desenvolvimento, o projeto passou por um ciclo completo de melhorias de qualidade, aplicando boas práticas modernas do ecossistema Spring.
 
 ## O que aprendi
 
@@ -20,18 +20,30 @@ Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, pe
 - Respostas tipadas com `ResponseEntity`
 - Separação de responsabilidades: controller → service → repository
 - Uso de DTOs para isolar a camada de apresentação das entidades
+- Paginação com `Pageable` e `Page` do Spring Data
 
 ### JPA e banco de dados
 - Mapeamento de entidades com `@Entity` e `@Table`
 - Relacionamentos `@OneToMany`, `@ManyToOne` e `@OneToOne`
 - Chave composta com `@EmbeddedId` e `@Embeddable`
+- Implementação correta de `equals()` e `hashCode()` em entidades e chaves compostas
+- `@Column` com constraints de `nullable`, `unique` e `length`
+- `@Transactional` em operações de escrita para garantir consistência
 - Repositories com `JpaRepository`
 - Integração com MySQL via Docker
+
+### Validação e tratamento de erros
+- Bean Validation com `@Valid`, `@NotBlank`, `@Email`, `@Size`, `@Min`
+- `@PathVariable UUID` para validação automática de formato pelo Spring
+- `@RestControllerAdvice` com `GlobalExceptionHandler` para centralizar erros
+- `ProblemDetail` (RFC 9457) como formato padrão de resposta de erro
+- Exceções customizadas (`ResourceNotFoundException`, `ResourceAlreadyExistsException`)
 
 ### Integração externa
 - Consumo de API externa com Spring Cloud OpenFeign
 - Configuração de client com `@FeignClient`
 - Uso de variável de ambiente para não expor o token no código
+- Fallback resiliente para falhas na API externa
 - Cálculo do valor total da posição: `quantidade × preço atual`
 
 ### Testes
@@ -41,15 +53,17 @@ Projeto desenvolvido para praticar construção de APIs REST com Spring Boot, pe
 - Verificação de interações com `verify`
 - Cobertura dos principais fluxos do `UserService`
 
+## Funcionalidades
 
 A API permite:
 
-- Cadastrar e gerenciar usuários
+- Cadastrar e gerenciar usuários com validação de entrada
 - Criar contas de investimento vinculadas a um usuário
 - Cadastrar ativos financeiros como `PETR4`, `VALE3` e `ITUB4`
 - Associar ativos a uma conta com quantidade definida
 - Consultar cotações em tempo real via Brapi
 - Calcular o valor total investido por ativo: `quantidade × preço atual`
+- Listar usuários com paginação e ordenação
 
 ## Stack
 
@@ -59,6 +73,7 @@ A API permite:
 | Spring Boot 3.4.5 | Framework base |
 | Spring Web | Criação dos endpoints REST |
 | Spring Data JPA | Persistência com Hibernate |
+| Spring Validation | Bean Validation nos DTOs |
 | Spring Cloud OpenFeign | Client HTTP para a Brapi |
 | MySQL 8.4 | Banco de dados relacional |
 | Docker Compose | Ambiente do banco em container |
@@ -71,7 +86,7 @@ A API permite:
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `POST` | `/v1/users` | Cadastrar usuário |
-| `GET` | `/v1/users` | Listar todos os usuários |
+| `GET` | `/v1/users` | Listar usuários (paginado) |
 | `GET` | `/v1/users/{userId}` | Buscar usuário por ID |
 | `PUT` | `/v1/users/{userId}` | Atualizar usuário |
 | `DELETE` | `/v1/users/{userId}` | Remover usuário |
@@ -91,48 +106,117 @@ A API permite:
 | `POST` | `/v1/accounts/{accountId}/stocks` | Associar ativo a uma conta |
 | `GET` | `/v1/accounts/{accountId}/stocks` | Listar ativos da conta com cotação |
 
-### Exemplo de resposta — `GET /v1/accounts/{accountId}/stocks`
+### Exemplos de resposta
 
+**`GET /v1/users?page=0&size=10&sort=username`**
+```json
+{
+  "content": [
+    {
+      "userId": "ea7f2793-effd-49bc-88aa-130091dfdfb9",
+      "username": "Gustavo",
+      "email": "gustavo@email.com",
+      "createdAt": "2026-06-09T00:19:18.897460Z"
+    }
+  ],
+  "totalElements": 4,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0
+}
+```
+
+**`GET /v1/accounts/{accountId}/stocks`**
 ```json
 [
   {
     "stockId": "PETR4",
-    "description": "Petrobras PN",
     "quantity": 10,
-    "currentPrice": 38.52,
-    "totalValue": 385.20
+    "total": 388.50
   },
   {
-    "stockId": "VALE3",
-    "description": "Vale ON",
-    "quantity": 5,
-    "currentPrice": 61.10,
-    "totalValue": 305.50
+    "stockId": "MGLU3",
+    "quantity": 50,
+    "total": 225.00
   }
 ]
 ```
 
-Cobertura: camada de serviço com JUnit 5 e Mockito, incluindo `ArgumentCaptor` e verificação de chamadas com `verify`.
+**Erros — formato RFC 9457**
+```json
+{
+  "type": "about:blank",
+  "title": "Recurso não encontrado",
+  "status": 404,
+  "detail": "Usuário não encontrado: 00000000-0000-0000-0000-000000000000",
+  "instance": "/v1/users/00000000-0000-0000-0000-000000000000"
+}
+```
 
 ## Estrutura do projeto
 
 ```
 src/
 └── main/
-    └── java/com/example/agregador/
-        ├── controller/     # Endpoints da API
+    └── java/com/gustavo/AgregadorDeInvestimentos/
+        ├── controller/     # Endpoints da API e DTOs
         ├── service/        # Regras de negócio
         ├── repository/     # Acesso ao banco via JPA
         ├── entity/         # Mapeamento das tabelas
         ├── client/         # Integração com a Brapi (OpenFeign)
-        └── dto/            # Objetos de entrada e resposta
+        └── exception/      # Exceções customizadas e handler global
 ```
+
+## Histórico de melhorias aplicadas
+
+Após a versão inicial funcional, o projeto passou por um ciclo de refatoração com foco em qualidade e boas práticas:
+
+**Limpeza de código**
+- Typos corrigidos: `BillingAdress` → `BillingAddress`, `crateUser` → `createUser`
+- `@Repository` removido de interfaces que já estendem `JpaRepository`
+- Imports não utilizados limpos em controllers e repositories
+
+**Entidades JPA**
+- `equals()` e `hashCode()` implementados em todas as entidades e na chave composta `AccountStockId`
+- `@Column` com `nullable = false`, `unique = true` e `length` nos campos obrigatórios
+
+**Validação de entrada**
+- `spring-boot-starter-validation` adicionado ao projeto
+- DTOs anotados com `@NotBlank`, `@Email`, `@Size`, `@Min` e mensagens em português
+- `@Valid` ativado nos controllers
+- `@PathVariable UUID` — o Spring converte e valida o formato automaticamente, retornando 400 para UUIDs inválidos
+
+**Tratamento de erros**
+- `GlobalExceptionHandler` com `@RestControllerAdvice` centralizando todos os erros
+- Handlers para `MethodArgumentNotValidException`, `ResourceNotFoundException`, `MethodArgumentTypeMismatchException` e `Exception` genérica
+- Respostas seguem o padrão `ProblemDetail` (RFC 9457), nativo do Spring 6+
+- `else {}` vazio e `deleteById` silencioso corrigidos para lançar 404
+- Fallback no `fetchPrices()` protegendo contra falhas da Brapi
+
+**Arquitetura**
+- `UserResponseDto` criado — sem expor `password`, sem loop de serialização JSON
+- `spring.jpa.open-in-view=false` configurado no `application.properties`
+- Paginação com `Pageable` e `@PageableDefault` no `listUsers()`
+
+**Exceções customizadas**
+- `ResourceNotFoundException` e `ResourceAlreadyExistsException` substituindo `ResponseStatusException` espalhado nos services
+- Mensagens descritivas identificando qual recurso não foi encontrado
+
+**Transações**
+- `@Transactional` nos métodos de escrita de `UserService`, `AccountService` e `StockService`
 
 ## Próximos passos
 
 - [x] Adicionar validações com Bean Validation (`@Valid`, `@NotBlank`)
-- [x] Melhorar tratamento de erros da Brapi com fallback
+- [x] Melhorar tratamento de erros com `@RestControllerAdvice` e `ProblemDetail`
 - [x] Criar DTOs de resposta para não expor entidades diretamente
+- [x] Corrigir loop de serialização JSON (`UserResponseDto`)
+- [x] Implementar paginação no `listUsers()`
+- [x] Exceções customizadas com mensagens descritivas
+- [x] `@Transactional` nos métodos de escrita
+- [x] Fallback resiliente para falhas na Brapi
 - [ ] Criptografar senhas com BCrypt
-- [ ] Adicionar testes de controller com `MockMvc`
-- [ ] Buscar múltiplos tickers em uma única chamada à Brapi
+- [ ] Spring Security com autenticação JWT
+- [ ] Testes de controller com `MockMvc`
+- [ ] Documentação da API com SpringDoc/OpenAPI (Swagger UI)
+- [ ] Profiles de configuração (`dev` / `prod`)
