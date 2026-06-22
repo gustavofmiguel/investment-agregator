@@ -14,6 +14,13 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+
+/*
+* createUser virou responsabilidade do /v1/auth/register
+* vou deixar os dois por enquanto para não quebrar nada ainda
+* Remover depois que tudo estiver testado
+* */
+
 @RestController
 @RequestMapping("/v1/users")
 public class UserController {

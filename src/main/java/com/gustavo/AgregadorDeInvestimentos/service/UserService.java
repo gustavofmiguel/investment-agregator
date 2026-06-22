@@ -10,6 +10,7 @@ import com.gustavo.AgregadorDeInvestimentos.repository.BillingAddressRepository;
 import com.gustavo.AgregadorDeInvestimentos.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +24,13 @@ public class UserService {
     private UserRepository userRepository;
     private AccountRepository accountRepository;
     private BillingAddressRepository billingAddressRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, AccountRepository accountRepository, BillingAddressRepository billingAddressRepository) {
+    public UserService(UserRepository userRepository, AccountRepository accountRepository, BillingAddressRepository billingAddressRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.billingAddressRepository = billingAddressRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -36,7 +39,7 @@ public class UserService {
         var entity = new User();
         entity.setUsername(createUserDto.username());
         entity.setEmail(createUserDto.email());
-        entity.setPassword(createUserDto.password());
+        entity.setPassword(passwordEncoder.encode(createUserDto.password()));
 
         var userSaved = userRepository.save(entity);
         return userSaved.getUserId();

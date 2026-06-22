@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Erros de @Valid — campo inválido, email errado, etc.
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,6 +47,9 @@ public class GlobalExceptionHandler {
     // Qualquer outro erro inesperado
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneric(Exception ex) {
+
+        log.error("Erro inesperado: {}", ex.getMessage(), ex);
+
         var problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Erro interno. Tente novamente mais tarde."

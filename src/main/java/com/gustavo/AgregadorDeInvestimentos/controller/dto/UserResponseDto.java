@@ -14,7 +14,7 @@ public record UserResponseDto(
     public static UserResponseDto from(User user) {
         return new UserResponseDto(
                 user.getUserId(),
-                user.getUsername(),
+                user.getRealUsername(),
                 user.getEmail(),
                 user.getCreationTimeStamp()
         );
